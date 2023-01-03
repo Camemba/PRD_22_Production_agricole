@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
-project(SOURCES)
+project(PRD_22_Production_agricole)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(SOURCES main.cpp)
+add_executable(PRD_22_Production_agricole main.cpp)
