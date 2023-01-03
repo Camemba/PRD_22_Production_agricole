@@ -5,8 +5,13 @@
 #ifndef PRD_22_PRODUCTION_AGRICOLE_CULTURE_H
 #define PRD_22_PRODUCTION_AGRICOLE_CULTURE_H
 #include <string>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 class Culture {
+public:
+    Culture();
+
 public:
     std::string nom;// plus simple pour lire la solution
     float besoin_eau; //besoin en eau par semaine
@@ -17,6 +22,9 @@ public:
     int depart_tard; //semaine de plantation au plus tard
     float emission; //indice de pollution par tonne de la culture
 
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Culture, nom, besoin_eau, duree_pousse,
+                                   hectars_pour_tonne, rendement, depart_tot,
+                                   depart_tard, emission)
 };
 
 

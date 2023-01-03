@@ -8,6 +8,9 @@
 
 class Scenario {
 public:
+    Scenario();
+
+public:
     float apport_initial; //apport en eau au départ
     std::vector<float> apport_hebdomadaire; //apport en eau pour chaque semaine
 };
