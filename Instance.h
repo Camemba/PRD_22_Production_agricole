@@ -23,6 +23,11 @@ public:
     std::vector<Culture> cultures; //liste de culture disponible
     std::vector<Scenario> scenarios; //liste des scénarios à prendre en compte
 
+    /*
+     * Macro pour "JSONiser" la classe
+     * TYPE_INTRUSIVE permet d'accèder à des attributs privés
+     * Chaque sous-classe utilisée doit etre JSONisable elle aussi
+     */
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Instance, id, nb_jobs, horizon, nb_scenarios, nb_hectars, GESMAX,cultures)
 
     Instance();

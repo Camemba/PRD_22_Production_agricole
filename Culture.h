@@ -22,6 +22,11 @@ public:
     int depart_tard; //semaine de plantation au plus tard
     float emission; //indice de pollution par tonne de la culture
 
+    /*
+   * Macro pour "JSONiser" la classe
+   * TYPE_INTRUSIVE permet d'accèder à des attributs privés
+   * Chaque sous-classe utilisée doit etre JSONisable elle aussi
+   */
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Culture, nom, besoin_eau, duree_pousse,
                                    hectars_pour_tonne, rendement, depart_tot,
                                    depart_tard, emission)
