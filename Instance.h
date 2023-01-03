@@ -5,9 +5,10 @@
 #ifndef PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
 #define PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
 #include <vector>
-
+#include <nlohmann/json.hpp>
 #include "Culture.h"
 #include "Scenario.h"
+using json = nlohmann::json;
 
 class Instance {
 public:
