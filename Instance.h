@@ -4,7 +4,9 @@
 
 #ifndef PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
 #define PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
+#include <vector>
 
+#include "Culture.h"
 
 class Instance {
 public:
@@ -14,6 +16,7 @@ public:
     int HV; //High Value
     int nb_hectars; //quantité de terre disponnible
     float GESMAX; //seuil de pollution maximale
+    std::vector<Culture> cultures; //liste de culture disponible
 
 };
 
