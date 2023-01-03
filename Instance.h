@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Culture.h"
+#include "Scenario.h"
 
 class Instance {
 public:
@@ -17,6 +18,7 @@ public:
     int nb_hectars; //quantité de terre disponnible
     float GESMAX; //seuil de pollution maximale
     std::vector<Culture> cultures; //liste de culture disponible
+    std::vector<Scenario> scenarios; //liste des scénarios à prendre en compte
 
 };
 
