@@ -16,13 +16,13 @@ class Scenario:
 class Instance:
     def __init__(self):
         self.id = 1
-        self.nb_job = 1
+        self.nb_jobs = 2
         self.horizon = 30
-        self.nb_scenario = 1
+        self.nb_scenarios = 2
         self.nb_hectars = 80
         self.GESMAX = 800
-        self.cultures = [Culture().__dict__ for k in range(self.nb_job)]
-        self.scenarios = [Scenario(self.horizon).__dict__ for k in range(self.nb_scenario)]
+        self.cultures = [Culture().__dict__ for k in range(self.nb_jobs)]
+        self.scenarios = [Scenario(self.horizon).__dict__ for k in range(self.nb_scenarios)]
 
 
 if __name__ == "__main__":
