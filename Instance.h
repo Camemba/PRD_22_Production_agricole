@@ -5,6 +5,7 @@
 #ifndef PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
 #define PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
 #include <vector>
+#include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "Culture.h"
@@ -29,9 +30,11 @@ public:
      * Chaque sous-classe utilisée doit etre JSONisable elle aussi
      */
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Instance, id, nb_jobs, horizon, nb_scenarios, nb_hectars, GESMAX,cultures)
-
+public:
     Instance();
-};
+    static void from_json(const json& js, Instance& instance);
 
+};
+std::ostream& operator<<(std::ostream& os, const Instance& instance);
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_INSTANCE_H
