@@ -32,5 +32,7 @@ public:
                                    depart_tard, emission)
 };
 
+// Affichage en sortie standard
+std::ostream& operator<<(std::ostream& os, const Culture& culture);
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_CULTURE_H
