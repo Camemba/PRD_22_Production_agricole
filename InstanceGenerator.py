@@ -22,11 +22,11 @@ class Scenario:
 
 
 class Instance:
-    def __init__(self):
+    def __init__(self, job, scenario):
         self.id = 1
-        self.nb_jobs = 5
+        self.nb_jobs = job
         self.horizon = HORIZON
-        self.nb_scenarios = 3
+        self.nb_scenarios = scenario
         self.nb_hectars = 80
         self.GESMAX = 800
         self.cultures = [Culture(k).__dict__ for k in range(self.nb_jobs)]
@@ -34,8 +34,15 @@ class Instance:
 
 
 if __name__ == "__main__":
-    filename = "cmake-build-debug\Instances\generatedInstance1.json"
-    data = Instance().__dict__
-    print(data["cultures"])
-    with open(filename, "w") as f:
-        json.dump(data, f)
+    path = "cmake-build-debug\Instances\generatedInstance"
+    extension = ".json"
+    for j in range(6):
+        job = 5
+        scenar = 3
+        filename = path+str(j)+extension
+        data = Instance(job, scenar).__dict__
+        # print(data["cultures"])
+        with open(filename, "w") as f:
+            json.dump(data, f)
+        job+=5*(j%2)
+        scenar += 3*((j+1)%2)
