@@ -1,0 +1,14 @@
+ //
+// Created by camem on 11/01/2023.
+//
+
+#ifndef PRD_22_PRODUCTION_AGRICOLE_SOLUTION_H
+#define PRD_22_PRODUCTION_AGRICOLE_SOLUTION_H
+
+
+class Solution {
+
+};
+
+
+#endif //PRD_22_PRODUCTION_AGRICOLE_SOLUTION_H
