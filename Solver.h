@@ -17,7 +17,8 @@ public:
     Solver(Instance i);
     Solution Heuristique1();
 private:
-    void makeWorstScenario();
+    void MakeWorstScenario();
+
 };
 
 
