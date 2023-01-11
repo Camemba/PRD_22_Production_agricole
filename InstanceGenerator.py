@@ -3,7 +3,8 @@ import random
 
 
 class Culture:
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id;
         self.nom = random.choice(["ble", "mais", "tournesol", "colza"])
         self.besoin_eau = random.randrange(1, 70)/10
         self.duree_pousse = random.randrange(10, 28)
@@ -28,12 +29,12 @@ class Instance:
         self.nb_scenarios = 3
         self.nb_hectars = 80
         self.GESMAX = 800
-        self.cultures = [Culture().__dict__ for k in range(self.nb_jobs)]
+        self.cultures = [Culture(k).__dict__ for k in range(self.nb_jobs)]
         self.scenarios = [Scenario(self.horizon).__dict__ for k in range(self.nb_scenarios)]
 
 
 if __name__ == "__main__":
-    filename = "cmake-build-debug\Instances\generatedInstance2.json"
+    filename = "cmake-build-debug\Instances\generatedInstance1.json"
     data = Instance().__dict__
     print(data["cultures"])
     with open(filename, "w") as f:

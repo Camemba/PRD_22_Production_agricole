@@ -13,6 +13,7 @@ public:
     Culture();
 
 public:
+    int id; // id unique de la culture dans le cas de plusieurs varietes
     std::string nom;// plus simple pour lire la solution
     float besoin_eau; //besoin en eau par semaine
     int duree_pousse; //nb de semaine nécessaire
@@ -22,12 +23,13 @@ public:
     int depart_tard; //semaine de plantation au plus tard
     float emission; //indice de pollution par tonne de la culture
 
+    bool operator<(const Culture &rhs) const;
     /*
    * Macro pour "JSONiser" la classe
    * TYPE_INTRUSIVE permet d'accèder à des attributs privés
    * Chaque sous-classe utilisée doit etre JSONisable elle aussi
    */
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Culture, nom, besoin_eau, duree_pousse,
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Culture,id, nom, besoin_eau, duree_pousse,
                                    hectars_pour_tonne, rendement, depart_tot,
                                    depart_tard, emission)
 };
