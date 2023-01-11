@@ -1,17 +1,17 @@
 import json
 import random
 
-
+HORIZON = 30
 class Culture:
     def __init__(self, id):
         self.id = id;
         self.nom = random.choice(["ble", "mais", "tournesol", "colza"])
         self.besoin_eau = random.randrange(1, 70)/10
-        self.duree_pousse = random.randrange(10, 28)
+        self.duree_pousse = random.randrange(2, 28)
         self.hectars_pour_tonne = 0.2
         self.rendement = 80
         self.depart_tot = 2
-        self.depart_tard = 4
+        self.depart_tard = random.randrange(2, HORIZON-self.duree_pousse)
         self.emission = 60
 
 
@@ -24,8 +24,8 @@ class Scenario:
 class Instance:
     def __init__(self):
         self.id = 1
-        self.nb_jobs = 2
-        self.horizon = 30
+        self.nb_jobs = 5
+        self.horizon = HORIZON
         self.nb_scenarios = 3
         self.nb_hectars = 80
         self.GESMAX = 800
