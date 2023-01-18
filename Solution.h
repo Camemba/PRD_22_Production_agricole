@@ -20,6 +20,7 @@ public:
 
     std::vector<float> landAtT; // Terre disponible a l'instant t
     std::vector<float> waterAtT; // eau disponible a l'instant t
+    float score;
 
     /*
      * Structure de donnee pour stocker l'affectation d'une culture

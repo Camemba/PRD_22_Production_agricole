@@ -20,6 +20,8 @@ Solution::Solution() {}
 
 void Solution::AllocateCrop(Culture crop, float quantity, int start) {
     int week = 0;
+    score += crop.rendement*quantity;
+    std::cout<<"score : "<<score<<std::endl;
     std::cout<<"Affectation de la culture : "<<crop.id <<" : "<<crop.nom<<std::endl;
     std::cout<<"Quantite : "<<quantity <<" date :  "<<start<<std::endl;
     affectedQuantity[crop].push_back(std::pair(start,quantity));
