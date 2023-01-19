@@ -69,7 +69,7 @@ class Instance:
         data += extract_param("HV", 1000)
         data += extract_param("T", self.horizon)
         data += extract_param("Q", self.nb_hectars)
-        data += extract_param("GESMAX", self.GESMAX)
+        data += extract_param("maxGreenhouseGases", self.GESMAX)
         data += extract_param("n", self.nb_jobs)
 
         data += extract_param_from_list("Besoin_Eau", self.cultures, "besoin_eau")

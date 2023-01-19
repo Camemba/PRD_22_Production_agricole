@@ -1,31 +1,28 @@
  //
-// Created by camem on 11/01/2023.
+// Created by Bastien Camembert on 11/01/2023.
 //
 
 #ifndef PRD_22_PRODUCTION_AGRICOLE_SOLUTION_H
 #define PRD_22_PRODUCTION_AGRICOLE_SOLUTION_H
 
 
-#include <vector>
 #include <map>
-#include "Culture.h"
-#include "Scenario.h"
+#include <utility>
 #include "Instance.h"
 
  class Solution {
 public:
 
-    Instance instance; // Copie de l'instance
-    Scenario scenario; // Scenario sur lequel se base la solution
+    Instance instance; // Instance copy
+    Scenario scenario; // Scenario copy where the solution takes place
 
-    std::vector<float> landAtT; // Terre disponible a l'instant t
-    std::vector<float> waterAtT; // eau disponible a l'instant t
+    std::vector<float> landAtT; // land availability at t
+    std::vector<float> waterAtT; // water availability at t
     float score;
 
     /*
-     * Structure de donnee pour stocker l'affectation d'une culture
-     * On considere qu'il est possible de planter plusieurs fois la meme
-     * culture a des dates de plantation differentes et en quantite differente
+     * Data structure to store a crop allocation
+     * It considers a crop to be planted several times at different starts and different quantities
      */
     std::map<Culture,std::vector<std::pair<int,float>>> affectedQuantity;
 
@@ -33,7 +30,7 @@ public:
      Solution();
      Solution(Instance i, Scenario s);
 
-     void AllocateCrop(Culture crop, float quantity, int start);
+     void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
 private:
     void InitList();
 
