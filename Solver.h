@@ -19,6 +19,9 @@ public:
 private:
     void MakeWorstScenario();
 
+    bool Verification(Solution solution);
+
+    std::pair<int,float>  FindBestConfig(Solution &solution, Culture &culture);
 };
 
 

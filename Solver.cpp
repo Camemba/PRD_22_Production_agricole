@@ -44,6 +44,78 @@ void Solver::MakeWorstScenario() {
 }
 
 
+bool Solver::Verification(Solution solution){
+    bool solutionIsValid = true;
+
+    auto solutionMap = solution.affectedQuantity;
+    // Pour chaque culture
+    for(auto mapIterator = solutionMap.begin();mapIterator !=solutionMap.end();++mapIterator){
+        // Pour chaque plantation
+        for(auto listIterator = mapIterator->second.begin();listIterator!=mapIterator->second.end();++listIterator){
+
+        }
+    }
+    return solutionIsValid;
+
+}
+/**
+ * Move a growth duration window between [early start and latest start + growth duration]
+ * to find the best crop's configuration
+ * @param solution
+ * @param culture
+ * @return
+ */
+std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture){
+
+    int week;
+    float alpha,beta;
+    float maxQuantityPossible,maxRewardPossible;
+
+    int earlyStart = culture.depart_tot;
+    int latestStart = culture.depart_tard;
+    int growthDuration = culture.duree_pousse;
+    float waterNeeds = culture.besoin_eau;
+    float landNeeds = culture.hectars_pour_tonne;
+    float cropReward = culture.rendement;
+
+    int bestDate ;
+    float bestReward,bestQuantity;
+
+    auto iterOnWater = solution.waterAtT.begin()+earlyStart ;
+    auto iterOnLand = solution.landAtT.begin()+earlyStart;
+
+    bestReward = 0;
+    bestQuantity = 0;
+    bestDate = earlyStart;
+
+    /*
+     * Move a growth duration window between [early start and latest start + growth duration]
+     * to find the best crop's configuration
+     */
+    for(week=0; week < latestStart - earlyStart; week++){
+        //minimum water delivery on the growth duration window
+        alpha = *std::min_element(iterOnWater + week , iterOnWater + week + growthDuration );
+        //minimum land delivery on the growth duration window
+        beta = *std::min_element(iterOnLand + week , iterOnLand + week + growthDuration );
+
+        /*
+         * On calcule la quantite maximale obtenable
+         * min apport_en_eau / besoin_en_eau_pour_tonne donne la quantite max par rapport a l'eau disponible
+         * min terre_dispo / besoin_en_terre_pour_tonne donne la quantite max par rapport a la terre disponible
+         */
+        maxQuantityPossible = std::min(alpha / waterNeeds, beta / landNeeds);
+        maxRewardPossible = maxQuantityPossible * cropReward; //crop score
+
+        if(maxRewardPossible > bestReward){
+            bestReward = maxRewardPossible;
+            bestQuantity = maxQuantityPossible;
+            bestDate = earlyStart+week;
+        }
+    }
+
+    return std::pair<int,float>(bestDate,bestQuantity);
+}
+
 
 Solution Solver::Heuristique1() {
     //Quantite de surface disponible a un instant t
@@ -57,7 +129,7 @@ Solution Solver::Heuristique1() {
     int best_start;
 
     int latest_end;
-    int early_start;
+    int start;
 
     float alpha;
     float beta;
@@ -65,31 +137,21 @@ Solution Solver::Heuristique1() {
     float max_reward_possible;
 
     result = Solution(instance,worst_scenario);
+    //result = Solution(instance,instance.scenarios[0]);
 
     auto iter_on_water = result.waterAtT.begin() ;
     auto iter_on_land = result.landAtT.begin();
-
+    std::pair<int,float> bestConfig;
     best_reward = -1;
 
     while( best_reward != 0){
         best_reward = -1;
         for(Culture c : instance.cultures){
-            early_start = c.depart_tot;
-            latest_end = c.depart_tard + c.duree_pousse;
 
-            //valeur min d'apport en eau sur la periode de pousse possible de la plante
-            alpha = *std::min_element(iter_on_water + early_start , iter_on_water + latest_end );
-
-            //valeur min de terre disponible sur la periode de pousse possible de la plante
-            beta = *std::min_element(iter_on_land + early_start , iter_on_land + latest_end );
-
-            /*
-             * On calcule la quantite maximale obtenable
-             * min apport_en_eau / besoin_en_eau_pour_tonne donne la quantite max par rapport a l'eau disponible
-             * min terre_dispo / besoin_en_terre_pour_tonne donne la quantite max par rapport a la terre disponible
-             */
-            max_quantity_possible = std::min(alpha / c.besoin_eau, beta / c.hectars_pour_tonne);
-
+            bestConfig = FindBestConfig(result,c);
+            start = bestConfig.first;
+            max_quantity_possible = bestConfig.second;
+            std::cout<<max_quantity_possible<<std::endl;
             // calcule le score max d'une culture
             max_reward_possible = max_quantity_possible * c.rendement;
 
@@ -98,11 +160,17 @@ Solution Solver::Heuristique1() {
                 best_crop = c;
                 best_reward = max_reward_possible;
                 best_quantity = max_quantity_possible;
-                best_start = early_start;
+                best_start = start;
+
+                std::cout<<"best : "<<best_reward<<" "<<best_quantity<<std::endl;
             }
+            std::cout<<" "<<std::endl;
         }
         if (best_reward != 0){
             result.AllocateCrop(best_crop,best_quantity, best_start);
+            best_reward = 0;
+            best_quantity = 0;
+            best_start = 0;
         }
     }
 
