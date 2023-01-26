@@ -59,6 +59,8 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
     float alpha,beta; //minimum water and land delivery on the growth duration window
     float maxQuantityPossible,maxRewardPossible; //maximum possible to stay feasible
 
+    float gasEmiRemaining =solution.instance.maxGreenhouseGases - solution.greenhouseGasEmission;
+
     //crop's infos
     int earlyStart = culture.depart_tot;
     int latestStart = culture.depart_tard;
@@ -66,6 +68,7 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
     float waterNeeds = culture.besoin_eau;
     float landNeeds = culture.hectars_pour_tonne;
     float cropReward = culture.rendement;
+    float cropEmissions = culture.emission;
 
     //outputs
     int bestDate ;
@@ -80,7 +83,7 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
     bestQuantity = 0;
     bestDate = earlyStart;
 
-    for(week=earlyStart; week < latestStart ; week++){
+    for(week=earlyStart; week <= latestStart ; week++){
         //minimum water delivery on the growth duration window
         alpha = *std::min_element(iterOnWater + week , iterOnWater + week + growthDuration );
         //minimum land delivery on the growth duration window
@@ -88,6 +91,8 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
 
         //Compute the maximum quantity possible
         maxQuantityPossible = std::min(alpha / waterNeeds, beta / landNeeds);
+
+        maxQuantityPossible = std::min(maxQuantityPossible, gasEmiRemaining/cropEmissions);
         maxRewardPossible = maxQuantityPossible * cropReward; //crop score
 
         // memorize config if better
@@ -141,15 +146,13 @@ Solution Solver::Heuristique1() {
                 bestReward = maxRewardPossible;
                 bestQuantity = maxQuantityPossible;
                 bestStart = start;
-
-                std::cout << "best : " << bestReward << " " << bestQuantity << std::endl;
             }
-            std::cout<<" "<<std::endl;
+
         }
         //apply the best crop
         if (bestReward != 0){
-            result.AllocateCrop(bestCrop, bestQuantity, bestStart);
-            bestReward = 0;
+            result.AllocateCrop(bestCrop, bestQuantity, bestStart,true);
+            bestReward = -1;
             bestQuantity = 0;
             bestStart = 0;
         }
