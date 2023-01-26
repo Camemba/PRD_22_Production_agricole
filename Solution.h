@@ -8,6 +8,7 @@
 
 #include <map>
 #include <utility>
+#include <ostream>
 #include "Instance.h"
 
  class Solution {
@@ -18,7 +19,8 @@ public:
 
     std::vector<float> landAtT; // land availability at t
     std::vector<float> waterAtT; // water availability at t
-    float score;
+    float score ;
+    float greenhouseGasEmission;
 
     /*
      * Data structure to store a crop allocation
@@ -31,7 +33,10 @@ public:
      Solution(Instance i, Scenario s);
 
      void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
-private:
+
+     friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
+
+ private:
     void InitList();
 
 };
