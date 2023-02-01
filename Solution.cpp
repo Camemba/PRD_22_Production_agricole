@@ -14,19 +14,60 @@ void Solution::InitList() {
     landAtT = std::vector<float>(instance.nbWeeks,  (float)instance.amountLands);
     waterAtT = std::vector<float>(scenario.apport_hebdomadaire);
 
+    //water on week j rely on previous weeks water
     waterAtT[0]+= scenario.apport_initial;
     for (iterOnWater = 1; iterOnWater < waterAtT.size(); iterOnWater++)
         waterAtT[iterOnWater] += waterAtT[iterOnWater - 1];
 
 
 }
-
-Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)), score(0)
-        ,greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::vector<std::pair<int,float>>>()) {
+/**
+ * Build a solution from an instance and a scenario
+ * @param i copy of input instance
+ * @param s copy of input scenario
+ */
+Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)), score(0),
+        greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::vector<std::pair<int,float>>>()) {
     InitList();
+    start = std::chrono::steady_clock::now();
+}
+/**
+ * Default constructor init score and greenhouseGas to 0
+ */
+Solution::Solution():score(0), greenhouseGasEmission(0), duration(0){}
+
+void Solution::end() {
+    auto end = std::chrono::steady_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
-Solution::Solution():score(0), greenhouseGasEmission(0){}
+
+
+/**
+ * Display all solution data in stream output operator
+ * (Needs to be called in stream output operator methode)
+ * @param os output address
+ * @param solution input solution object
+ */
+void CompleteDisplay(std::ostream* os, const Solution &solution){
+    *os << " Instance: "    << solution.instance <<std::endl;
+    *os << " Scenario: "    << solution.scenario <<std::endl;
+
+    *os << "land at T: " <<std::endl;
+    int i=0;
+    for(auto iterOnLand = solution.landAtT.begin(); iterOnLand < solution.landAtT.end(); iterOnLand++){
+        *os << i << " :" << *iterOnLand << "| ";
+        i++;
+
+    }
+    i=0;
+    *os <<std::endl<< " water at T: " <<std::endl;
+    for(auto iterOnWater = solution.waterAtT.begin(); iterOnWater < solution.waterAtT.end(); ++iterOnWater){
+        *os << i << " :" << *iterOnWater << "| ";
+        i++;
+    }
+
+}
 
 /**
  * Stream output operator
@@ -39,25 +80,11 @@ std::ostream &operator<<(std::ostream &os, const Solution &solution) {
     os << "instance: "  << solution.instance.id     <<std::endl;
     os << "score: "     << solution.score           <<std::endl;
     os << "emission: "  << solution.greenhouseGasEmission<<std::endl;
-
-    //os << " Scenario: "    << solution.scenario           <<std::endl;
-    /*
-    os << "land at T: " <<std::endl;
-    int i=0;
-    for(auto iland = solution.landAtT.begin();iland<solution.landAtT.end();iland++){
-        os<<i<<" :"<<*iland<<"| ";
-        i++;
-    }
-    i=0;
-    os <<std::endl<< " water at T: " <<std::endl;
-    for(auto iwater = solution.waterAtT.begin();iwater<solution.waterAtT.end();++iwater){
-        os<<i<<" :"<<*iwater<<"| ";
-        i++;
-    }
-     */
+    //CompleteDisplay(&os,solution);
     os<<std::endl;
     return os;
 }
+
 
 
 /**
@@ -80,7 +107,7 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
     float greenhouseGas = crop.emission;
     std::string cropName = crop.nom;
 
-    greenhouseGasEmission += greenhouseGas*quantity;
+    greenhouseGasEmission += greenhouseGas*quantity; //total greenhouse gas emissions
     score += reward*quantity; //update score
     affectedQuantity[crop].emplace_back(start,quantity);// memorize the planting choice
 

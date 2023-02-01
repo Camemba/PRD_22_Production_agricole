@@ -157,5 +157,6 @@ Solution Solver::Heuristique1() {
             bestStart = 0;
         }
     }
+    result.end();
     return result;
 }

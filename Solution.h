@@ -21,6 +21,9 @@ public:
     std::vector<float> waterAtT; // water availability at t
     float score ;
     float greenhouseGasEmission;
+    std::chrono::steady_clock::time_point start;
+    float duration;
+
 
     /*
      * Data structure to store a crop allocation
@@ -32,8 +35,9 @@ public:
      Solution();
      Solution(Instance i, Scenario s);
 
-     void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
+     void end();
 
+     void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
      friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
 
  private:
