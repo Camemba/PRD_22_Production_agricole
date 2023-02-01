@@ -1,41 +1,63 @@
 import json
 import random
 
-HORIZON = 30
-
-
-class Culture:
-    def __init__(self, id):
-        self.id = id
-        self.nom = random.choice(["ble", "mais", "tournesol", "colza"])
-        self.besoin_eau = random.randrange(1, 70) / 10
-        self.duree_pousse = random.randrange(2, 28)
-        self.hectars_pour_tonne = 0.2
-        self.rendement = 80
-        self.depart_tot = 2
-        self.depart_tard = random.randrange(2, HORIZON - self.duree_pousse)
-        self.emission = 60
-
-
-class Scenario:
-    def __init__(self, horizon):
-        self.apport_initial = random.randrange(50, 100)  # Pluviométrie du mois précédent
-        self.apport_hebdomadaire = [random.randrange(4, 35) for k in range(horizon)]  # En mm par semaine
+HORIZON = 60
 
 
 def extract_param_from_list(param_name: str, param_list, param_key: str):
+    """Convert a list parameter to a .dat format"""
     string_data = "\n" + "param " + param_name + ":=\n"
     for i in range(len(param_list)):
-        string_data += str(i+1) + " " + str(param_list[i][param_key]) + "\n"
+        string_data += str(i + 1) + " " + str(param_list[i][param_key]) + "\n"
     string_data += ";\n"
     return string_data
 
 
 def extract_param(param_name: str, param):
+    """Convert a simple parameter to a .dat format"""
     return "param " + param_name + ":=" + str(param) + ";\n"
 
 
+def extract_apport_eau(horizon, scenarios):
+    """Convert the apport_hebdomadaire parameter to a .dat format"""
+    string_data = "\n" + "param " + "Apport_Eau : "
+    for i in range(horizon):
+        string_data += str(i + 1) + " "
+    string_data += ":=\n"
+    for s in range(len(scenarios)):
+        string_data += str(s + 1) + " "
+        data_list = scenarios[s]["apport_hebdomadaire"]
+        for t in range(len(data_list)):
+            string_data += str(data_list[t]) + " "
+        string_data += "\n"
+    string_data += ";\n"
+    return string_data
+
+
+class Culture:
+    def __init__(self, c_id, name="c", water=random.randrange(1, 13) / 10, duration=random.randrange(20, 30),
+                 land=random.randrange(100, 200) / 1000, reward=random.randrange(50, 150),
+                 es=random.randrange(0, 15), ls=random.randrange(15, 30), emission=random.randrange(1, 5)):
+        self.id = c_id
+        self.nom = name
+        self.besoin_eau = water
+        self.duree_pousse = duration
+        self.hectars_pour_tonne = land
+        self.rendement = reward
+        self.depart_tot = es
+        self.depart_tard = ls
+        self.emission = emission
+
+
+class Scenario:
+    def __init__(self, horizon, initial=random.randrange(50, 100), range_hebdo=(0, 25)):
+        self.apport_initial = initial
+        self.apport_hebdomadaire = [random.randrange(range_hebdo[0], range_hebdo[1])
+                                    for k in range(horizon)]  # En mm par semaine
+
+
 class Instance:
+
     def __init__(self, job, scenario):
         self.id = 1
         self.nb_jobs = job
@@ -45,20 +67,6 @@ class Instance:
         self.GESMAX = 800
         self.cultures = [Culture(k).__dict__ for k in range(self.nb_jobs)]
         self.scenarios = [Scenario(self.horizon).__dict__ for k in range(self.nb_scenarios)]
-
-    def extract_apport_eau(self):
-        string_data = "\n"+"param "+"Apport_Eau : "
-        for i in range(self.horizon):
-            string_data += str(i+1) + " "
-        string_data += ":=\n"
-        for s in range(len(self.scenarios)):
-            string_data += str(s+1) + " "
-            data_list = self.scenarios[s]["apport_hebdomadaire"]
-            for t in range(len(data_list)):
-                string_data += str(data_list[t]) + " "
-            string_data += "\n"
-        string_data += ";\n"
-        return string_data
 
     def to_json(self, file_name):
         with open(file_name, "w") as file:
@@ -82,21 +90,46 @@ class Instance:
 
         data += extract_param("S", self.nb_scenarios)
         data += extract_param_from_list("Volume_Eau_Initial", self.scenarios, "apport_initial")
-        data += self.extract_apport_eau()
+        data += extract_apport_eau(self.horizon, self.scenarios)
         # print(data)
         with open(file_name, "w") as file:
             file.write(data)
 
 
-if __name__ == "__main__":
-    jsons_path = "cmake-build-debug\\Instances\\generatedInstance"
-    dat_path = "..\\model\\latest_model"
+class Cereal(Instance):
 
+    def __init__(self, job, scenario):
+        super().__init__(job, scenario)
+        cereal_name = ["ble", "mais", "tournesol", "colza", "orge", "sorgho", "avoine", "sarrasin", "seigle", "millet"]
+        self.horizon = HORIZON
+        self.nb_hectars = 80
+        self.GESMAX = 800
+        self.cultures = [self.create_crop(k, cereal_name[k]) for k in range(self.nb_jobs)]
+        self.scenarios = [Scenario(self.horizon, 50, (0, 15)).__dict__ for k in range(self.nb_scenarios)]
+
+    def create_crop(self, c_id, name):
+        water = random.randrange(1, 13) / 10
+        duration = random.randrange(20, 30)
+        land = random.randrange(100, 200) / 1000
+        reward = random.randrange(50, 150)
+        early = random.randrange(0, 15)
+        latest = random.randrange(early, self.horizon - duration)
+        emission = random.randrange(1, 5)
+        result = Culture(c_id, name, water, duration, land, reward, early, latest, emission).__dict__
+        return result
+
+
+if __name__ == "__main__":
+    default_path = "generated_test_instance"
+    jsons_path = "cmake-build-debug\\Instances\\generatedInstanceNew"
+    dat_path = "..\\model\\latest_model"
+    inst = Cereal(5, 3)
     for j in range(6):
-        job = 5
+        n_job = 5
         scenar = 3
-        inst = Instance(job, scenar)
-        inst.to_json(jsons_path+str(j)+".json")
-        inst.to_dat(dat_path+str(j)+".dat")
-        job += 5 * (j % 2)
+        inst = Cereal(n_job, scenar)
+        inst.to_json(jsons_path + str(j) + ".json")
+        # inst.to_dat(dat_path + str(j) + ".dat")
+        print(inst.__dict__)
+        n_job += 5 * (j % 2)
         scenar += 3 * ((j + 1) % 2)
