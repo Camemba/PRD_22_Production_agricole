@@ -22,7 +22,7 @@ def extract_apport_eau(horizon, scenarios):
     """Convert the apport_hebdomadaire parameter to a .dat format"""
     string_data = "\n" + "param " + "Apport_Eau : "
     for i in range(horizon):
-        string_data += str(i + 1) + " "
+        string_data += str(i) + " "
     string_data += ":=\n"
     for s in range(len(scenarios)):
         string_data += str(s + 1) + " "
@@ -77,7 +77,7 @@ class Instance:
         data += extract_param("HV", 1000)
         data += extract_param("T", self.horizon)
         data += extract_param("Q", self.nb_hectars)
-        data += extract_param("maxGreenhouseGases", self.GESMAX)
+        data += extract_param("GESMAX", self.GESMAX)
         data += extract_param("n", self.nb_jobs)
 
         data += extract_param_from_list("Besoin_Eau", self.cultures, "besoin_eau")
@@ -120,16 +120,12 @@ class Cereal(Instance):
 
 
 if __name__ == "__main__":
-    default_path = "generated_test_instance"
-    jsons_path = "cmake-build-debug\\Instances\\generatedInstanceNew"
-    dat_path = "..\\model\\latest_model"
-    inst = Cereal(5, 3)
-    for j in range(6):
-        n_job = 5
-        scenar = 3
-        inst = Cereal(n_job, scenar)
-        inst.to_json(jsons_path + str(j) + ".json")
-        # inst.to_dat(dat_path + str(j) + ".dat")
-        print(inst.__dict__)
-        n_job += 5 * (j % 2)
-        scenar += 3 * ((j + 1) % 2)
+    default_path = "cmake-build-debug\\Stat\\generated_test_instance"
+    #jsons_path = "cmake-build-debug\\Instances\\generatedInstanceNew"
+    #dat_path = "..\\model\\latest_model"
+    n_job = (5,8,10)
+    n_scenar = 3
+    for j in range(90):
+        inst = Cereal(n_job[j//30], n_scenar)
+        inst.to_json(default_path + str(j) + ".json")
+        inst.to_dat(default_path + str(j) + ".dat")
