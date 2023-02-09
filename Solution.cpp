@@ -27,7 +27,7 @@ void Solution::InitList() {
  * @param s copy of input scenario
  */
 Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)), score(0),
-        greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::vector<std::pair<int,float>>>()) {
+        greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::map<int,float>>()) {
     InitList();
     start = std::chrono::steady_clock::now();
 }
@@ -68,6 +68,19 @@ void CompleteDisplay(std::ostream* os, const Solution &solution){
     }
 
 }
+void ShowDecision(std::ostream* os, const Solution &solution){
+    *os << "Decision : {"<<std::endl;
+    auto mapIterator = solution.affectedQuantity.begin();
+    for (mapIterator = solution.affectedQuantity.begin(); mapIterator != solution.affectedQuantity.end(); mapIterator++){
+        *os << "  *  Culture :"<<mapIterator->first.id<<"("<<mapIterator->first.nom<<")"<<std::endl;
+        *os <<"\t";
+        for(auto subMapIterator=mapIterator->second.begin(); subMapIterator != mapIterator->second.end(); subMapIterator++){
+            *os << "(" << subMapIterator->first << " : " << subMapIterator->second << ")  ";
+        }
+        *os<<std::endl;
+    }
+    *os<< "}"<<std::endl;
+}
 
 /**
  * Stream output operator
@@ -80,7 +93,8 @@ std::ostream &operator<<(std::ostream &os, const Solution &solution) {
     os << "instance: "  << solution.instance.id     <<std::endl;
     os << "score: "     << solution.score           <<std::endl;
     os << "emission: "  << solution.greenhouseGasEmission<<std::endl;
-    //CompleteDisplay(&os,solution);
+    CompleteDisplay(&os,solution);
+    ShowDecision(&os,solution);
     os<<std::endl;
     return os;
 }
@@ -109,7 +123,7 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
 
     greenhouseGasEmission += greenhouseGas*quantity; //total greenhouse gas emissions
     score += reward*quantity; //update score
-    affectedQuantity[crop].emplace_back(start,quantity);// memorize the planting choice
+    affectedQuantity[crop][start]+=quantity;// memorize the planting choice
 
     if(displayChoice){
         std::cout<<"Affectation de la culture : "<<cropId <<" : "<<cropName<<std::endl;
@@ -120,7 +134,7 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
     //Update availability
     for (week = start; week < start + growthDuration; week ++){
         landAtT[week]-= landNeeds * quantity;
-        waterAtT[week] -=  waterNeeds * quantity; //ASSOCIATE WATER NEEDS AND QUANTITY
+        waterAtT[week] -=  (week-start)*waterNeeds * quantity; //ASSOCIATE WATER NEEDS AND QUANTITY
     }
 
 

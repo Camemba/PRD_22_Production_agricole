@@ -29,7 +29,7 @@ public:
      * Data structure to store a crop allocation
      * It considers a crop to be planted several times at different starts and different quantities
      */
-    std::map<Culture,std::vector<std::pair<int,float>>> affectedQuantity;
+    std::map<Culture,std::map<int,float>> affectedQuantity;
 
 public:
      Solution();
