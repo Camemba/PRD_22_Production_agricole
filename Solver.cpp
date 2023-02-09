@@ -56,7 +56,7 @@ void Solver::MakeWorstScenario() {
 std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture){
 
     int week; // week iterator
-    float alpha,beta; //minimum water and land delivery on the growth duration window
+    float alpha,alphaTemp,beta; //minimum water and land delivery on the growth duration window
     float maxQuantityPossible,maxRewardPossible; //maximum possible to stay feasible
 
     float gasEmiRemaining =solution.instance.maxGreenhouseGases - solution.greenhouseGasEmission;
@@ -69,6 +69,7 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
     float landNeeds = culture.hectars_pour_tonne;
     float cropReward = culture.rendement;
     float cropEmissions = culture.emission;
+
 
     //outputs
     int bestDate ;
@@ -85,14 +86,26 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
 
     for(week=earlyStart; week <= latestStart ; week++){
         //minimum water delivery on the growth duration window
-        alpha = *std::min_element(iterOnWater + week , iterOnWater + week + growthDuration );
+        alpha = 9999999;
+        for (int t = 0; t<growthDuration; t++){
+            alphaTemp = *(iterOnWater + week +t)/((t+1)*waterNeeds);
+            if(alphaTemp<alpha)
+                alpha = alphaTemp;
+
+
+        }
+
+
+        //alpha = *std::min_element(iterOnWater + week , iterOnWater + week + growthDuration );
         //minimum land delivery on the growth duration window
         beta = *std::min_element(iterOnLand + week , iterOnLand + week + growthDuration );
 
         //Compute the maximum quantity possible
-        maxQuantityPossible = std::min(alpha / waterNeeds, beta / landNeeds);
+        maxQuantityPossible = std::min(alpha , beta / landNeeds);
 
         maxQuantityPossible = std::min(maxQuantityPossible, gasEmiRemaining/cropEmissions);
+        if(maxQuantityPossible < 0.001)
+            maxQuantityPossible = 0;
         maxRewardPossible = maxQuantityPossible * cropReward; //crop score
 
         // memorize config if better
@@ -127,7 +140,6 @@ Solution Solver::Heuristique1() {
 
     result = Solution(instance, worstScenario);
     //result = Solution(instance,instance.scenarios[0]);
-
     //score
     bestReward = -1;
 
