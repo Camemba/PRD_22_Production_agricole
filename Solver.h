@@ -18,6 +18,8 @@ public:
 private:
     void MakeWorstScenario();
     static std::pair<int,float>  FindBestConfig(Solution &solution, Culture &culture);
+
+    void MinCumulScenario();
 };
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_SOLVER_H

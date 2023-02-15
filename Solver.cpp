@@ -9,6 +9,58 @@
 Solver::Solver(Instance i): instance(std::move(i)), worstScenario(Scenario()){
     MakeWorstScenario();
 }
+void Solver::MinCumulScenario(){
+    int range = instance.nbWeeks;
+    int nbScenarios = instance.nbScenarios;
+    worstScenario.apport_hebdomadaire = std::vector<float>(range);
+    std::vector<Scenario> scenarios = instance.scenarios;
+
+
+    int week; // week iterator
+    int sIndex; //scenario iterator
+    float minCumul;
+    float currentCumul;
+    float initValue;
+    float firstSupply;
+    float cumulValue;
+
+    Scenario currentScenario;
+
+    std::vector<float> cumuls = std::vector<float>(nbScenarios);
+
+    //Building worst weekly delivery
+
+    // Worst initial delivery
+    minCumul = 999999;
+    worstScenario.apport_initial = 99999;
+    for(sIndex = 0; sIndex < nbScenarios; sIndex++){
+        currentScenario = scenarios[sIndex];
+        initValue = currentScenario.apport_initial;
+        firstSupply = currentScenario.apport_hebdomadaire[0];
+        cumuls[sIndex] = firstSupply + initValue;
+        if(firstSupply<minCumul)
+            minCumul = firstSupply;
+        if(initValue < worstScenario.apport_initial)
+            worstScenario.apport_initial = initValue;
+
+    }
+    worstScenario.apport_hebdomadaire[0] = minCumul;
+    currentCumul = minCumul + initValue;
+
+    for(week = 1; week < range; week++){
+        minCumul = 999999;
+        for(sIndex = 0; sIndex < nbScenarios; sIndex++){
+            currentScenario = scenarios[sIndex];
+            cumulValue = cumuls[sIndex] + currentScenario.apport_hebdomadaire[week];
+            cumuls[sIndex] = cumulValue;
+            if(cumulValue<minCumul)
+                minCumul = cumulValue;
+        }
+        worstScenario.apport_hebdomadaire[week] = minCumul - currentCumul;
+        currentCumul = minCumul;
+
+    }
+}
 
 /**
  * Create an artificial scenario which is the worst possible for the instance
@@ -124,7 +176,7 @@ std::pair<int,float> Solver::FindBestConfig(Solution &solution, Culture &culture
  * @return
  */
 Solution Solver::Heuristique1() {
-
+    MinCumulScenario();
     Solution result;
 
     //best crop infos
