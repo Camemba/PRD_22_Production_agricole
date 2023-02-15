@@ -1,23 +1,25 @@
 //
-// Created by camem on 15/02/2023.
+// Created by Bastien Camembert on 15/02/2023.
 //
 
-#ifndef INSTANCEGENERATOR_PY_CONSTRAINTVIOLATIONEXCEPTION_H
-#define INSTANCEGENERATOR_PY_CONSTRAINTVIOLATIONEXCEPTION_H
+#ifndef PRD_22_PRODUCTION_AGRICOLE_CONSTRAINTVIOLATIONEXCEPTION_H
+#define PRD_22_PRODUCTION_AGRICOLE_CONSTRAINTVIOLATIONEXCEPTION_H
 
 
 #include <iostream>
 
+enum class Constraint {GGE,Water};
+
 class ConstraintViolationException : public std::exception{
 private:
-    char * message;
+    Constraint constraint;
+    int scenario;
+    int week;
 
 public:
-    ConstraintViolationException(char * msg) : message(msg) {}
-    char * what () {
-        return message;
-    }
+    ConstraintViolationException(Constraint constraint) : constraint(constraint) {}
+    ConstraintViolationException(Constraint constraint, int scenario, int week);
+    char * what () ;
 };
 
-
-#endif //INSTANCEGENERATOR_PY_CONSTRAINTVIOLATIONEXCEPTION_H
+#endif //PRD_22_PRODUCTION_AGRICOLE_CONSTRAINTVIOLATIONEXCEPTION_H
