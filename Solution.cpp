@@ -6,19 +6,16 @@
 
 
 /**
- * Init methode for water and land availability
+ * Init methode for water availability
  */
-void Solution::InitList() {
+std::vector<float>  Solution::InitWaterAvailability(const Scenario& scenario) {
     int iterOnWater;
-
-    landAtT = std::vector<float>(instance.nbWeeks,  (float)instance.amountLands);
-    waterAtT = std::vector<float>(scenario.apport_hebdomadaire);
-
+    auto water = std::vector<float>(scenario.apport_hebdomadaire);
     //water on week j rely on previous weeks water
-    waterAtT[0]+= scenario.apport_initial;
-    for (iterOnWater = 1; iterOnWater < waterAtT.size(); iterOnWater++)
-        waterAtT[iterOnWater] += waterAtT[iterOnWater - 1];
-
+    water[0]+= scenario.apport_initial;
+    for (iterOnWater = 1; iterOnWater < water.size(); iterOnWater++)
+        water[iterOnWater] += water[iterOnWater - 1];
+    return water;
 
 }
 /**
@@ -28,7 +25,9 @@ void Solution::InitList() {
  */
 Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)), score(0),
         greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::map<int,float>>()) {
-    InitList();
+    landAtT = std::vector<float>(instance.nbWeeks,  (float)instance.amountLands);
+    waterConsumption = std::vector<float>(instance.nbWeeks,  0);
+    waterAtT = InitWaterAvailability(scenario);
     start = std::chrono::steady_clock::now();
 }
 /**
@@ -66,8 +65,18 @@ void CompleteDisplay(std::ostream* os, const Solution &solution){
         *os << i << " :" << *iterOnWater << "| ";
         i++;
     }
+    i=0;
+    *os <<std::endl<< " water consumption: " <<std::endl;
+    for(auto iterOnWater = solution.waterConsumption.begin(); iterOnWater < solution.waterConsumption.end(); ++iterOnWater){
+        *os << i << " :" << *iterOnWater << "| ";
+        i++;
+    }
 
-}
+}/**
+ * Add the solution decision data to the output stream
+ * @param os output stream address
+ * @param solution Solution object reference
+ */
 void ShowDecision(std::ostream* os, const Solution &solution){
     *os << "Decision : {"<<std::endl;
     auto mapIterator = solution.affectedQuantity.begin();
@@ -134,9 +143,49 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
     //Update availability
     for (week = start; week < start + growthDuration; week ++){
         landAtT[week]-= landNeeds * quantity;
-        waterAtT[week] -=  (week-start)*waterNeeds * quantity; //ASSOCIATE WATER NEEDS AND QUANTITY
+        waterConsumption[week] +=(week-start)*waterNeeds * quantity;//ASSOCIATE WATER NEEDS AND QUANTITY
+        waterAtT[week] -= waterConsumption[week] ;
+    }
+
+
+
+}
+/**
+ * Throw a ConstaintViolationException if the Greenhouse gas emission threshold is exceeded
+ */
+void Solution::VerifyGGE() const{
+    if(greenhouseGasEmission>instance.maxGreenhouseGases)
+        throw ConstraintViolationException(Constraint::GGE);
+}
+
+void Solution::VerifyWaterConsumption(){
+    auto availability = std::vector<std::vector<float>>(); //water availability for each scenario
+    int iterOnScenario = 0;
+    int week = 0;
+    std::vector<float> water;
+
+    //Init availability list
+    for(Scenario s: instance.scenarios){
+        availability.push_back(InitWaterAvailability(s));
+    }
+    for(iterOnScenario = 0;iterOnScenario<availability.size();iterOnScenario++){
+        water = availability[iterOnScenario];
+        for(week =0; week<instance.nbWeeks;week++){
+            if (water[week]<waterConsumption[week])
+                throw ConstraintViolationException(Constraint::Water,iterOnScenario,week);
+        }
     }
 
 
 }
 
+void Solution::Verify(){
+    try{
+        VerifyWaterConsumption();
+        VerifyGGE();
+
+        std::cout<<"Feasible Solution"<<std::endl;
+    }catch (ConstraintViolationException cve){
+        std::cout<<"Non-Feasible Solution : "<<cve.what()<<std::endl;
+    }
+}

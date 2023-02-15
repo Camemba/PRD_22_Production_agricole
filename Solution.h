@@ -10,6 +10,7 @@
 #include <utility>
 #include <ostream>
 #include "Instance.h"
+#include "ConstraintViolationException.h"
 
  class Solution {
 public:
@@ -19,6 +20,7 @@ public:
 
     std::vector<float> landAtT; // land availability at t
     std::vector<float> waterAtT; // water availability at t
+    std::vector<float> waterConsumption;
     float score ;
     float greenhouseGasEmission;
     std::chrono::steady_clock::time_point start;
@@ -39,11 +41,15 @@ public:
 
      void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
      friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
+     void Verify();
 
  private:
-    void InitList();
+    std::vector<float> InitWaterAvailability(const Scenario& scenario);
+    void VerifyGGE() const;
+    void VerifyWaterConsumption();
 
-};
+
+ };
 
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_SOLUTION_H
