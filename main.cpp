@@ -27,6 +27,7 @@ void simpleTest(){
     Instance instance = buildInstance(jsonFile);
     Solver solver = Solver(instance);
     Solution sol = solver.Heuristique1();
+    sol.Verify();
     std::cout<<sol<<std::endl;
     std::cout<<"Resultion time : "<<sol.duration<<" ms"<<std::endl;
 }
@@ -53,6 +54,6 @@ void makeStat(){
 }
 int main(int argc, char *argv[]) {
     simpleTest();
-    makeStat();
+    //makeStat();
     return 0;
 }
