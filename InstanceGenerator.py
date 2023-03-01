@@ -2,6 +2,8 @@ import json
 import random
 
 HORIZON = 60
+SURFACE = 80
+EMISSIONMAX = 300
 
 
 def extract_param_from_list(param_name: str, param_list, param_key: str):
@@ -35,6 +37,8 @@ def extract_apport_eau(horizon, scenarios):
 
 
 class Culture:
+    """Data structure to store crop's information"""
+
     def __init__(self, c_id, name="c", water=random.randrange(1, 13) / 10, duration=random.randrange(20, 30),
                  land=random.randrange(100, 200) / 1000, reward=random.randrange(50, 150),
                  es=random.randrange(0, 15), ls=random.randrange(15, 30), emission=random.randrange(1, 5)):
@@ -50,6 +54,8 @@ class Culture:
 
 
 class Scenario:
+    """Data structure to store uncertainties' information on water"""
+
     def __init__(self, horizon, initial=random.randrange(50, 100), range_hebdo=(0, 25)):
         self.apport_initial = initial
         self.apport_hebdomadaire = [random.randrange(range_hebdo[0], range_hebdo[1])
@@ -57,22 +63,25 @@ class Scenario:
 
 
 class Instance:
+    """Data structure that contains all problem's information"""
 
     def __init__(self, job, scenario):
         self.id = 1
         self.nb_jobs = job
         self.horizon = HORIZON
         self.nb_scenarios = scenario
-        self.nb_hectars = 80
-        self.GESMAX = 800
+        self.nb_hectars = SURFACE
+        self.GESMAX = EMISSIONMAX
         self.cultures = [Culture(k).__dict__ for k in range(self.nb_jobs)]
         self.scenarios = [Scenario(self.horizon).__dict__ for k in range(self.nb_scenarios)]
 
     def to_json(self, file_name):
+        """Write an instance in a JSON file"""
         with open(file_name, "w") as file:
             json.dump(self.__dict__, file)
 
     def to_dat(self, file_name):
+        """Write an instance in a .dat file and format"""
         data = ""
         data += extract_param("HV", 1000)
         data += extract_param("T", self.horizon)
@@ -91,23 +100,25 @@ class Instance:
         data += extract_param("S", self.nb_scenarios)
         data += extract_param_from_list("Volume_Eau_Initial", self.scenarios, "apport_initial")
         data += extract_apport_eau(self.horizon, self.scenarios)
-        # print(data)
+
         with open(file_name, "w") as file:
             file.write(data)
 
 
 class Cereal(Instance):
+    """Specific instance cereal crop oriented"""
 
     def __init__(self, job, scenario):
         super().__init__(job, scenario)
         cereal_name = ["ble", "mais", "tournesol", "colza", "orge", "sorgho", "avoine", "sarrasin", "seigle", "millet"]
         self.horizon = HORIZON
-        self.nb_hectars = 80
-        self.GESMAX = 800
+        self.nb_hectars = SURFACE
+        self.GESMAX = EMISSIONMAX
         self.cultures = [self.create_crop(k, cereal_name[k]) for k in range(self.nb_jobs)]
         self.scenarios = [Scenario(self.horizon, 50, (0, 15)).__dict__ for k in range(self.nb_scenarios)]
 
     def create_crop(self, c_id, name):
+        """Generate random consistent crop data"""
         water = random.randrange(1, 13) / 10
         duration = random.randrange(20, 30)
         land = random.randrange(100, 200) / 1000
@@ -121,11 +132,9 @@ class Cereal(Instance):
 
 if __name__ == "__main__":
     default_path = "cmake-build-debug\\Stat\\generated_test_instance"
-    #jsons_path = "cmake-build-debug\\Instances\\generatedInstanceNew"
-    #dat_path = "..\\model\\latest_model"
-    n_job = (5,8,10)
+    n_job = (5, 8, 10)
     n_scenar = 3
     for j in range(90):
-        inst = Cereal(n_job[j//30], n_scenar)
+        inst = Cereal(n_job[j // 30], n_scenar)
         inst.to_json(default_path + str(j) + ".json")
         inst.to_dat(default_path + str(j) + ".dat")

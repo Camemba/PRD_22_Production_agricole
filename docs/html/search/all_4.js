@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['operator_3c_3c_6',['operator&lt;&lt;',['../classSolution.html#a2201ecd14bc5cbc3dba443b09f3d82d3',1,'Solution']]]
+  ['to_5fdat_6',['to_dat',['../classInstanceGenerator_1_1Instance.html#a19741a929f1fc44d3eba4d7c072e144f',1,'InstanceGenerator::Instance']]],
+  ['to_5fjson_7',['to_json',['../classInstanceGenerator_1_1Instance.html#a5e799c9c1c116d601959137df4a882d8',1,'InstanceGenerator::Instance']]]
 ];
