@@ -17,7 +17,7 @@ public:
     Solution Heuristique1();
 private:
     void MakeWorstScenario();
-    static std::pair<int,float>  FindBestConfig(Solution &solution, Culture &culture);
+    static std::pair<int,float>  FindBestConfig(const Solution &solution, const Culture &culture);
 
     void MinCumulScenario();
 };
