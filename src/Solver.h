@@ -6,7 +6,7 @@
 #define PRD_22_PRODUCTION_AGRICOLE_SOLVER_H
 
 
-#include "Solution.h"
+#include "models/Solution.h"
 
 class Solver {
 public:

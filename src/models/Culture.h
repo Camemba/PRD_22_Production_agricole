@@ -5,7 +5,7 @@
 #ifndef PRD_22_PRODUCTION_AGRICOLE_CULTURE_H
 #define PRD_22_PRODUCTION_AGRICOLE_CULTURE_H
 #include <string>
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
 class Culture {

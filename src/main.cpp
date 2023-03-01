@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "Instance.h"
+#include "models/Instance.h"
 #include "Solver.h"
 
 Instance buildInstance(std::string jsonFilePath)
