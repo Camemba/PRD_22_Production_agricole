@@ -120,7 +120,8 @@ std::ostream &operator<<(std::ostream &os, const Solution &solution) {
 void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice) {
 
     int week ; //update availability iterator
-
+    int lastWeek;
+    float consoCumul;
     //crop infos
     float reward = crop.rendement;
     float waterNeeds = crop.besoin_eau;
@@ -140,14 +141,26 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
         std::cout<<"Current score : "<<score<<std::endl;
     }
 
+    consoCumul = 0;
     //Update availability
     for (week = start; week < start + growthDuration; week ++){
+        consoCumul+= waterNeeds * quantity;
         landAtT[week]-= landNeeds * quantity;
-        waterConsumption[week] +=(week-start)*waterNeeds * quantity;//ASSOCIATE WATER NEEDS AND QUANTITY
-        waterAtT[week] -= waterConsumption[week] ;
+        waterConsumption[week] +=consoCumul;//ASSOCIATE WATER NEEDS AND QUANTITY
+        waterAtT[week] -= consoCumul ;
+        lastWeek = week;
     }
 
-
+    for(week = lastWeek; week <waterAtT.size();week++){
+        waterAtT[week] -= consoCumul;
+    }
+    int i =0;
+    std::cout<<"water at T"<<std::endl;
+    for(auto iterOnWater =waterAtT.begin(); iterOnWater < waterAtT.end(); ++iterOnWater){
+        std::cout << i << " :" << *iterOnWater << "| ";
+        i++;
+    }
+    std::cout<<std::endl;
 
 }
 /**
@@ -158,11 +171,39 @@ void Solution::VerifyGGE() const{
         throw ConstraintViolationException(Constraint::GGE);
 }
 
+void AccumulateConsumption(std::vector<float>& consumption, int start,int duration, float quantity){
+    int week;
+    for(week = start;week<start+duration;week++){
+        consumption[week]+= (week-start+1)*quantity;
+    }
+}
+
+std::vector<float> CreateConsumptionMap(const Solution& sol){
+    std::map<int,float> plantationDates;
+    int duration;
+    float needs;
+
+
+    auto cons = std::vector<float>(sol.instance.nbWeeks,0);
+    auto decisionMap = sol.affectedQuantity;
+
+    for(auto iterCulture =decisionMap.begin();iterCulture!=decisionMap.end();iterCulture++){
+        plantationDates = iterCulture->second;
+        duration = iterCulture->first.duree_pousse;
+        needs = iterCulture->first.besoin_eau;
+        for(auto iterDate = plantationDates.begin(); iterDate != plantationDates.end(); iterDate++){
+            AccumulateConsumption(cons,iterDate->first,duration,iterDate->second*needs);
+        }
+    }
+
+    return cons;
+}
 void Solution::VerifyWaterConsumption(){
     auto availability = std::vector<std::vector<float>>(); //water availability for each scenario
     int iterOnScenario = 0;
     int week = 0;
     std::vector<float> water;
+    auto cons = CreateConsumptionMap(*this);
 
     //Init availability list
     for(Scenario s: instance.scenarios){
