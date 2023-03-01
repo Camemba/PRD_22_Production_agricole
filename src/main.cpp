@@ -3,6 +3,11 @@
 #include "models/Instance.h"
 #include "Solver.h"
 
+/**
+ * Create an Instance object from a Json file
+ * @param jsonFilePath instance file path
+ * @return an Instance object
+ */
 Instance buildInstance(std::string jsonFilePath)
 {
     std::ifstream file(jsonFilePath);
@@ -11,19 +16,27 @@ Instance buildInstance(std::string jsonFilePath)
     Instance::BuildFromJson(data, instance);
     return instance;
 }
+/**
+ * Export an Instance object in a JSON file
+ * @param jsonFilePath output file path
+ * @param instance instance Object
+ */
 void exportInstance(std::string jsonFilePath, Instance instance)
 {
     json j;
-    nlohmann::to_json(j,instance);
-    std::cout << j << std::endl;
+    nlohmann::to_json(j,instance);//convert an instance into JSON format thanks to macro in Instance.h
+    //std::cout << j << std::endl;
     std::ofstream myfile;
-    myfile.open (jsonFilePath);
+    myfile.open (jsonFilePath);// overwrite the file if exist create it if not
     myfile << j;
     myfile.close();
 }
-void simpleTest(){
-    //std::string jsonFile = "Instances\\instance1.json";
-    std::string jsonFile = "Stat\\generated_test_instance0.json";
+
+/**
+ * Launch the solver on a specified instance and verify solution feasibility
+ * @param jsonFile instance file
+ */
+void simpleTest(std::string jsonFile){
     Instance instance = buildInstance(jsonFile);
     Solver solver = Solver(instance);
     Solution sol = solver.Heuristique1();
@@ -31,6 +44,9 @@ void simpleTest(){
     std::cout<<sol<<std::endl;
     std::cout<<"Resultion time : "<<sol.duration<<" ms"<<std::endl;
 }
+/**
+ * Launch solver on multiple instances to make statistics
+ */
 void makeStat(){
     std::fstream outfile;
     Instance instance;
@@ -53,7 +69,6 @@ void makeStat(){
     std::cout<<"Total : "<<cumulate<<" ms"<<std::endl;
 }
 int main(int argc, char *argv[]) {
-    simpleTest();
-    //makeStat();
+    simpleTest("Stat\\generated_test_instance0.json");
     return 0;
 }
