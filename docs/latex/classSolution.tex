@@ -1,0 +1,126 @@
+\hypertarget{classSolution}{}\doxysection{Solution Class Reference}
+\label{classSolution}\index{Solution@{Solution}}
+
+
+Collaboration diagram for Solution\+:
+% FIG 0
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classSolution_ab55bd4b023d596ce11aaf737b9a6123b}{Solution}} ()
+\item 
+\mbox{\hyperlink{classSolution_a619d15e813f054a5c30937ff0dddcdf9}{Solution}} (\mbox{\hyperlink{classInstance}{Instance}} i, \mbox{\hyperlink{classScenario}{Scenario}} s)
+\item 
+\mbox{\Hypertarget{classSolution_a35baaeb86049179c5b35d2e2750e57b6}\label{classSolution_a35baaeb86049179c5b35d2e2750e57b6}} 
+void {\bfseries end} ()
+\item 
+void \mbox{\hyperlink{classSolution_aaeb90b2a6a46889f87156a5872e370e1}{Allocate\+Crop}} (const \mbox{\hyperlink{classCulture}{Culture}} \&crop, float quantity, int start, bool display\+Choice=false)
+\item 
+\mbox{\Hypertarget{classSolution_aa2777ad67b01357a4468198faa438066}\label{classSolution_aa2777ad67b01357a4468198faa438066}} 
+void {\bfseries Verify} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classSolution_a7b350e132c5018e4248a9dcad26bcf96}\label{classSolution_a7b350e132c5018e4248a9dcad26bcf96}} 
+\mbox{\hyperlink{classInstance}{Instance}} {\bfseries instance}
+\item 
+\mbox{\Hypertarget{classSolution_adfc1d9da21f747e0e3a725f6960b7967}\label{classSolution_adfc1d9da21f747e0e3a725f6960b7967}} 
+\mbox{\hyperlink{classScenario}{Scenario}} {\bfseries scenario}
+\item 
+\mbox{\Hypertarget{classSolution_a902980c4194549ee83a737d64c4922a6}\label{classSolution_a902980c4194549ee83a737d64c4922a6}} 
+std\+::vector$<$ float $>$ {\bfseries land\+AtT}
+\item 
+\mbox{\Hypertarget{classSolution_a459ae27979a23ac4d9324064316b7389}\label{classSolution_a459ae27979a23ac4d9324064316b7389}} 
+std\+::vector$<$ float $>$ {\bfseries water\+AtT}
+\item 
+\mbox{\Hypertarget{classSolution_acd8118fd2647f286c4e533d4c8eda2ba}\label{classSolution_acd8118fd2647f286c4e533d4c8eda2ba}} 
+std\+::vector$<$ float $>$ {\bfseries water\+Consumption}
+\item 
+\mbox{\Hypertarget{classSolution_ae938f962813a68dbc546ffc7b382adc7}\label{classSolution_ae938f962813a68dbc546ffc7b382adc7}} 
+float {\bfseries score}
+\item 
+\mbox{\Hypertarget{classSolution_a4ecd736846ff900cc53ba77e66568d0a}\label{classSolution_a4ecd736846ff900cc53ba77e66568d0a}} 
+float {\bfseries greenhouse\+Gas\+Emission}
+\item 
+\mbox{\Hypertarget{classSolution_a97244363173380b7e5590831c47c0e70}\label{classSolution_a97244363173380b7e5590831c47c0e70}} 
+std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point {\bfseries start}
+\item 
+\mbox{\Hypertarget{classSolution_a5c944879f28bc3a08ecee94766e967f5}\label{classSolution_a5c944879f28bc3a08ecee94766e967f5}} 
+float {\bfseries duration}
+\item 
+\mbox{\Hypertarget{classSolution_ac92860d74c7dd15e594f782bba9eaaa8}\label{classSolution_ac92860d74c7dd15e594f782bba9eaaa8}} 
+std\+::map$<$ \mbox{\hyperlink{classCulture}{Culture}}, std\+::map$<$ int, float $>$ $>$ {\bfseries affected\+Quantity}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{classSolution_a2201ecd14bc5cbc3dba443b09f3d82d3}{operator$<$$<$}} (std\+::ostream \&os, const \mbox{\hyperlink{classSolution}{Solution}} \&solution)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classSolution_ab55bd4b023d596ce11aaf737b9a6123b}\label{classSolution_ab55bd4b023d596ce11aaf737b9a6123b}} 
+\index{Solution@{Solution}!Solution@{Solution}}
+\index{Solution@{Solution}!Solution@{Solution}}
+\doxysubsubsection{\texorpdfstring{Solution()}{Solution()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Solution\+::\+Solution (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Default constructor init score and greenhouse\+Gas to 0 \mbox{\Hypertarget{classSolution_a619d15e813f054a5c30937ff0dddcdf9}\label{classSolution_a619d15e813f054a5c30937ff0dddcdf9}} 
+\index{Solution@{Solution}!Solution@{Solution}}
+\index{Solution@{Solution}!Solution@{Solution}}
+\doxysubsubsection{\texorpdfstring{Solution()}{Solution()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily Solution\+::\+Solution (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classInstance}{Instance}}}]{i,  }\item[{\mbox{\hyperlink{classScenario}{Scenario}}}]{s }\end{DoxyParamCaption})}
+
+Build a solution from an instance and a scenario 
+\begin{DoxyParams}{Parameters}
+{\em i} & copy of input instance \\
+\hline
+{\em s} & copy of input scenario \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classSolution_aaeb90b2a6a46889f87156a5872e370e1}\label{classSolution_aaeb90b2a6a46889f87156a5872e370e1}} 
+\index{Solution@{Solution}!AllocateCrop@{AllocateCrop}}
+\index{AllocateCrop@{AllocateCrop}!Solution@{Solution}}
+\doxysubsubsection{\texorpdfstring{AllocateCrop()}{AllocateCrop()}}
+{\footnotesize\ttfamily void Solution\+::\+Allocate\+Crop (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classCulture}{Culture}} \&}]{crop,  }\item[{float}]{quantity,  }\item[{int}]{start,  }\item[{bool}]{display\+Choice = {\ttfamily false} }\end{DoxyParamCaption})}
+
+Add crop to the solution and update land and water availability 
+\begin{DoxyParams}{Parameters}
+{\em crop} & Copy of the crop object \\
+\hline
+{\em quantity} & Amount of crop planted \\
+\hline
+{\em start} & Planting week date \\
+\hline
+{\em display\+Choice} & Flag to display when a choice is made (default = false) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classSolution_a2201ecd14bc5cbc3dba443b09f3d82d3}\label{classSolution_a2201ecd14bc5cbc3dba443b09f3d82d3}} 
+\index{Solution@{Solution}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!Solution@{Solution}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{os,  }\item[{const \mbox{\hyperlink{classSolution}{Solution}} \&}]{solution }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+Stream output operator 
+\begin{DoxyParams}{Parameters}
+{\em os} & output \\
+\hline
+{\em solution} & input \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+os 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Solution.\+h\item 
+Solution.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,28 @@
+\hypertarget{classConstraintViolationException}{}\doxysection{Constraint\+Violation\+Exception Class Reference}
+\label{classConstraintViolationException}\index{ConstraintViolationException@{ConstraintViolationException}}
+
+
+Inheritance diagram for Constraint\+Violation\+Exception\+:
+% FIG 0
+
+
+Collaboration diagram for Constraint\+Violation\+Exception\+:
+% FIG 1
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classConstraintViolationException_a67663a9cb1f9042e183cfe273c312ea7}\label{classConstraintViolationException_a67663a9cb1f9042e183cfe273c312ea7}} 
+{\bfseries Constraint\+Violation\+Exception} (Constraint constraint)
+\item 
+\mbox{\Hypertarget{classConstraintViolationException_a97d2efd70b758e1671e6dadf5ffc72ab}\label{classConstraintViolationException_a97d2efd70b758e1671e6dadf5ffc72ab}} 
+{\bfseries Constraint\+Violation\+Exception} (Constraint constraint, int scenario, int week)
+\item 
+\mbox{\Hypertarget{classConstraintViolationException_a08d1bacb9c47e9717a5c3faa75abd67c}\label{classConstraintViolationException_a08d1bacb9c47e9717a5c3faa75abd67c}} 
+char $\ast$ {\bfseries what} ()
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Constraint\+Violation\+Exception.\+h\item 
+Constraint\+Violation\+Exception.\+cpp\end{DoxyCompactItemize}
