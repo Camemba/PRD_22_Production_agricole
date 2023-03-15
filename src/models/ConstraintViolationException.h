@@ -19,6 +19,7 @@ private:
 public:
     ConstraintViolationException(Constraint constraint) : constraint(constraint) {}
     ConstraintViolationException(Constraint constraint, int scenario, int week);
+    Constraint type(){return constraint;};
     char * what () ;
 };
 
