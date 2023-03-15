@@ -220,7 +220,8 @@ void Solution::VerifyWaterConsumption(){
 
 }
 
-void Solution::Verify(){
+
+void Solution::Verify(bool throwException){
     try{
         VerifyWaterConsumption();
         VerifyGGE();
@@ -228,5 +229,11 @@ void Solution::Verify(){
         std::cout<<"Feasible Solution"<<std::endl;
     }catch (ConstraintViolationException cve){
         std::cout<<"Non-Feasible Solution : "<<cve.what()<<std::endl;
+        if(throwException)
+            throw cve;
     }
 }
+void Solution::Verify(){
+    Verify(false);
+}
+
