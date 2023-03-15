@@ -170,15 +170,25 @@ void Solution::VerifyGGE() const{
     if(greenhouseGasEmission>instance.maxGreenhouseGases)
         throw ConstraintViolationException(Constraint::GGE);
 }
-
+/**
+ * Add a quantity on a vector from index[start] to index[start+duration]
+ * @param consumption vector reference
+ * @param start start index
+ * @param duration accumulation duration
+ * @param quantity accumulation quantity
+ */
 void AccumulateConsumption(std::vector<float>& consumption, int start,int duration, float quantity){
     int week;
     for(week = start;week<start+duration;week++){
         consumption[week]+= (week-start+1)*quantity;
     }
 }
-
-std::vector<float> CreateConsumptionMap(const Solution& sol){
+/**
+ * Create a vector with water consumption for each week, from solution decisions
+ * @param sol solution object reference
+ * @return consumption vector
+ */
+std::vector<float> CreateWaterConsumptionList(const Solution& sol){
     std::map<int,float> plantationDates;
     int duration;
     float needs;
@@ -187,23 +197,27 @@ std::vector<float> CreateConsumptionMap(const Solution& sol){
     auto cons = std::vector<float>(sol.instance.nbWeeks,0);
     auto decisionMap = sol.affectedQuantity;
 
-    for(auto iterCulture =decisionMap.begin();iterCulture!=decisionMap.end();iterCulture++){
-        plantationDates = iterCulture->second;
-        duration = iterCulture->first.duree_pousse;
-        needs = iterCulture->first.besoin_eau;
-        for(auto iterDate = plantationDates.begin(); iterDate != plantationDates.end(); iterDate++){
-            AccumulateConsumption(cons,iterDate->first,duration,iterDate->second*needs);
+    for(auto iterCultureMap =decisionMap.begin(); iterCultureMap != decisionMap.end(); iterCultureMap++){
+        plantationDates = iterCultureMap->second;
+        duration = iterCultureMap->first.duree_pousse;
+        needs = iterCultureMap->first.besoin_eau;
+        for(auto iterDateMap = plantationDates.begin(); iterDateMap != plantationDates.end(); iterDateMap++){
+            AccumulateConsumption(cons, iterDateMap->first, duration, iterDateMap->second * needs);// QUANTITY*NEEDS
         }
     }
 
     return cons;
 }
+/**
+ * Verify if the water consumption constraint is respected return an exception otherwise
+ * @throw ConstraintViolationException
+ */
 void Solution::VerifyWaterConsumption(){
     auto availability = std::vector<std::vector<float>>(); //water availability for each scenario
     int iterOnScenario = 0;
     int week = 0;
     std::vector<float> water;
-    auto cons = CreateConsumptionMap(*this);
+    auto cons = CreateWaterConsumptionList(*this);
 
     //Init availability list
     for(Scenario s: instance.scenarios){
@@ -220,19 +234,28 @@ void Solution::VerifyWaterConsumption(){
 
 }
 
-
+/**
+ * Verify solution feasibility and identify which constraint isn't respected
+ * Display the result if parameter is false, throw exception otherwise
+ * @param throwException choose between display or throw exception
+ */
 void Solution::Verify(bool throwException){
     try{
         VerifyWaterConsumption();
         VerifyGGE();
 
-        std::cout<<"Feasible Solution"<<std::endl;
+        if(!throwException)
+            std::cout<<"Feasible Solution"<<std::endl;
     }catch (ConstraintViolationException cve){
-        std::cout<<"Non-Feasible Solution : "<<cve.what()<<std::endl;
         if(throwException)
             throw cve;
+        else
+            std::cout<<"Non-Feasible Solution : "<<cve.what()<<std::endl;
     }
 }
+/**
+ * Verify solution feasibility and display which constraint isn't respected
+ */
 void Solution::Verify(){
     Verify(false);
 }
