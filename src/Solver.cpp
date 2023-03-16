@@ -193,11 +193,17 @@ std::pair<int,float> Solver::FindBestConfig(const Solution &solution, const Cult
 Solution Solver::Heuristique1() {
     MinCumulScenario();
     Solution result;
+    std::vector<Culture>crops;
+    std::map<Culture,bool>chosenCrops;
+    Culture crop;
+
 
     //best crop infos
-    Culture  bestCrop;
+    Culture bestCrop;
     float bestReward,bestQuantity;
     int bestStart;
+
+
 
     //crop's config
     int start;
@@ -206,36 +212,102 @@ Solution Solver::Heuristique1() {
     std::pair<int,float> cropConfig;
 
     result = Solution(instance, worstScenario);
-    //result = Solution(instance,instance.scenarios[0]);
-    //score
     bestReward = -1;
+    // init crop list
 
-    while(bestReward != 0){
-        bestReward = -1;
-        for(Culture c : instance.crops){
 
-            cropConfig = FindBestConfig(result, c);
+    while(bestReward != 0 ){
+        bestReward = 0;
+        for(auto iterOnCrop = instance.crops.begin(); iterOnCrop != instance.crops.end(); iterOnCrop++){
+
+            crop = *iterOnCrop;
+            cropConfig = FindBestConfig(result, crop);
             start = cropConfig.first;
             maxQuantityPossible = cropConfig.second;
-            maxRewardPossible = maxQuantityPossible * c.rendement;
+            maxRewardPossible = maxQuantityPossible * crop.rendement;
 
             //memorize the best crop
-            if(maxRewardPossible > bestReward){
-                bestCrop = c;
+            if(maxRewardPossible > bestReward && chosenCrops[crop]!=1){
+                bestCrop = *iterOnCrop;
                 bestReward = maxRewardPossible;
                 bestQuantity = maxQuantityPossible;
                 bestStart = start;
             }
 
+
+
         }
         //apply the best crop
         if (bestReward != 0){
-            result.AllocateCrop(bestCrop, bestQuantity, bestStart,false);
+            result.AllocateCrop(bestCrop, bestQuantity, bestStart);
+            chosenCrops[bestCrop]=1;
             bestReward = -1;
             bestQuantity = 0;
             bestStart = 0;
+
         }
     }
     result.end();
     return result;
+}
+/**
+ * Solve the knapsack problem where crops are the items, emissions are w and emission threshold is the W
+ * It's a real quantity of each object
+ * @param solution
+ */
+void Solver::SolveKnapsack(Solution& solution){
+    auto items =std::vector<std::pair<float, const Culture *>>() ; //list (weight/reward, item)
+    auto decisionMap = solution.affectedQuantity;
+    Solution newSolution = Solution(solution.instance,solution.scenario);
+
+    float W = solution.instance.maxGreenhouseGases;
+    int itemIndex;
+    int size;
+    float quantity;
+    int date;
+
+
+    const Culture* crop;
+    //data initialisation
+    for(auto iterCultureMap =decisionMap.begin(); iterCultureMap != decisionMap.end(); iterCultureMap++){
+        crop = &(iterCultureMap->first);
+        items.push_back(std::make_pair(crop->emission/crop->rendement,crop));
+    }
+    //the smaller the first value is, the better the item is.
+    std::sort(items.begin(), items.end());
+    itemIndex = 0;
+    size = items.size();
+    while( W>0 || itemIndex<size){
+        crop = items[itemIndex].second;
+        quantity = W/crop->emission;
+        date = decisionMap[*crop].begin()->first; // use the first plantation date of a crop
+        newSolution.AllocateCrop(*crop,quantity,date);
+    }
+    solution = newSolution;
+    
+}
+
+
+
+/**
+ * Repair the solution if unfeasible, do nothing otherwise
+ * @param solution
+ */
+void Solver::Repair(Solution& solution){
+    try{
+        solution.Verify(true);
+    }catch (ConstraintViolationException cve){
+        Constraint type = cve.type();
+
+        switch (type) {
+            case Constraint::GGE:
+                //knapsack problem
+                SolveKnapsack(solution);
+                break;
+            case Constraint::Water:
+                break;
+            default:
+                std::cout<<"Exception type not recognize in repair function : "<<cve.what()<<std::endl;
+        }
+    }
 }

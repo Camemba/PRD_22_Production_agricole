@@ -10,7 +10,7 @@
 
 class Solver {
 public:
-    Instance instance;
+    const Instance instance;
     Scenario worstScenario;
 public:
     explicit Solver(Instance i);
@@ -20,6 +20,10 @@ private:
     static std::pair<int,float>  FindBestConfig(const Solution &solution, const Culture &culture);
 
     void MinCumulScenario();
+
+    void Repair(Solution &solution);
+
+    void SolveKnapsack(Solution &solution);
 };
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_SOLVER_H
