@@ -42,11 +42,14 @@ public:
      void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
      friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
      void Verify(bool throwException);
+     std::ostream CompleteDisplay(std::ostream& os);
 
  private:
     std::vector<float> InitWaterAvailability(const Scenario& scenario);
     void VerifyGGE() const;
     void VerifyWaterConsumption();
+
+
  };
 
 

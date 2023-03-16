@@ -102,7 +102,8 @@ std::ostream &operator<<(std::ostream &os, const Solution &solution) {
     os << "instance: "  << solution.instance.id     <<std::endl;
     os << "score: "     << solution.score           <<std::endl;
     os << "emission: "  << solution.greenhouseGasEmission<<std::endl;
-    CompleteDisplay(&os,solution);
+    os << "resolution time: "  << solution.duration<<" ms"<<std::endl;
+    //CompleteDisplay(&os,solution);
     ShowDecision(&os,solution);
     os<<std::endl;
     return os;
