@@ -122,6 +122,7 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
     int week ; //update availability iterator
     int lastWeek;
     float consoCumul;
+
     //crop infos
     float reward = crop.rendement;
     float waterNeeds = crop.besoin_eau;
@@ -135,32 +136,30 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
     score += reward*quantity; //update score
     affectedQuantity[crop][start]+=quantity;// memorize the planting choice
 
-    if(displayChoice){
-        std::cout<<"Affectation de la culture : "<<cropId <<" : "<<cropName<<std::endl;
-        std::cout<<"Quantity : "<<quantity <<" date :  "<<start<<std::endl;
-        std::cout<<"Current score : "<<score<<std::endl;
-    }
 
     consoCumul = 0;
     //Update availability
     for (week = start; week < start + growthDuration; week ++){
-        consoCumul+= waterNeeds * quantity;
+        consoCumul+= waterNeeds ;
         landAtT[week]-= landNeeds * quantity;
-        waterConsumption[week] +=consoCumul;//ASSOCIATE WATER NEEDS AND QUANTITY
+        waterConsumption[week] +=consoCumul;
         waterAtT[week] -= consoCumul ;
         lastWeek = week;
     }
 
+
     for(week = lastWeek; week <waterAtT.size();week++){
         waterAtT[week] -= consoCumul;
     }
-    int i =0;
-    std::cout<<"water at T"<<std::endl;
-    for(auto iterOnWater =waterAtT.begin(); iterOnWater < waterAtT.end(); ++iterOnWater){
-        std::cout << i << " :" << *iterOnWater << "| ";
-        i++;
+
+    if(displayChoice){
+        std::cout<<"Affectation de la culture : "<<cropId <<" : "<<cropName<<std::endl;
+        std::cout<<"Quantity : "<<quantity <<" date :  "<<start<<std::endl;
+        std::cout<<"Current score : "<<score<<std::endl;
+        std::cout<<std::endl;
     }
-    std::cout<<std::endl;
+
+
 
 }
 /**
@@ -202,7 +201,7 @@ std::vector<float> CreateWaterConsumptionList(const Solution& sol){
         duration = iterCultureMap->first.duree_pousse;
         needs = iterCultureMap->first.besoin_eau;
         for(auto iterDateMap = plantationDates.begin(); iterDateMap != plantationDates.end(); iterDateMap++){
-            AccumulateConsumption(cons, iterDateMap->first, duration, iterDateMap->second * needs);// QUANTITY*NEEDS
+            AccumulateConsumption(cons, iterDateMap->first, duration,  needs);// QUANTITY*NEEDS
         }
     }
 
@@ -239,7 +238,7 @@ void Solution::VerifyWaterConsumption(){
  * Display the result if parameter is false, throw exception otherwise
  * @param throwException choose between display or throw exception
  */
-void Solution::Verify(bool throwException){
+void Solution::Verify(bool throwException=false){
     try{
         VerifyWaterConsumption();
         VerifyGGE();
@@ -253,10 +252,3 @@ void Solution::Verify(bool throwException){
             std::cout<<"Non-Feasible Solution : "<<cve.what()<<std::endl;
     }
 }
-/**
- * Verify solution feasibility and display which constraint isn't respected
- */
-void Solution::Verify(){
-    Verify(false);
-}
-

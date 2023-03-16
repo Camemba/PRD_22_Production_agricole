@@ -41,7 +41,6 @@ public:
 
      void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
      friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
-     void Verify(); // call Verify(false)
      void Verify(bool throwException);
 
  private:
