@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-enum class Constraint {GGE,Water};
+enum class Constraint {GGE,Water,Land};
 
 class ConstraintViolationException : public std::exception{
 private:
