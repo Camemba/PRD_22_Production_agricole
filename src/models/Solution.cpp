@@ -202,12 +202,13 @@ std::vector<float> CreateWaterConsumptionList(const Solution& sol){
         duration = iterCultureMap->first.duree_pousse;
         needs = iterCultureMap->first.besoin_eau;
         for(auto iterDateMap = plantationDates.begin(); iterDateMap != plantationDates.end(); iterDateMap++){
-            AccumulateConsumption(cons, iterDateMap->first, duration,  needs);// QUANTITY*NEEDS
+            AccumulateConsumption(cons, iterDateMap->first, duration,  needs);
         }
     }
 
     return cons;
 }
+
 /**
  * Verify if the water consumption constraint is respected return an exception otherwise
  * @throw ConstraintViolationException
@@ -230,9 +231,20 @@ void Solution::VerifyWaterConsumption(){
                 throw ConstraintViolationException(Constraint::Water,iterOnScenario,week);
         }
     }
-
-
 }
+/**
+ * Verify if the land consumption constraint is respected return an exception otherwise
+ * @throw ConstraintViolationException
+ */
+void Solution::VerifyLandConsumption(){
+    int week ;
+    auto landAvailable = (float)instance.amountLands;
+        for(week =0; week<instance.nbWeeks;week++){
+            if (landAvailable<landAtT[week])
+                throw ConstraintViolationException(Constraint::Land,-1,week);
+        }
+}
+
 
 /**
  * Verify solution feasibility and identify which constraint isn't respected
@@ -242,6 +254,7 @@ void Solution::VerifyWaterConsumption(){
 void Solution::Verify(bool throwException=false){
     try{
         VerifyWaterConsumption();
+        VerifyLandConsumption();
         VerifyGGE();
 
         if(!throwException)
