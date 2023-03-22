@@ -23,7 +23,7 @@ public:
     std::vector<float> waterConsumption;
     float score ;
     float greenhouseGasEmission;
-    std::chrono::steady_clock::time_point start;
+    std::chrono::steady_clock::time_point startPoint;
     float duration;
 
 
@@ -42,15 +42,17 @@ public:
      void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
      friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
      void Verify(bool throwException);
-     std::ostream CompleteDisplay(std::ostream& os);
+     void CompleteDisplay(std::ostream *os);
 
  private:
-    std::vector<float> InitWaterAvailability(const Scenario& scenario);
+    static std::vector<float> InitWaterAvailability(const Scenario& scenario);
     void VerifyGGE() const;
     void VerifyWaterConsumption();
 
 
      void VerifyLandConsumption();
+
+
  };
 
 

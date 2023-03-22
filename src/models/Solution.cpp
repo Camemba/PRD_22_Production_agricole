@@ -24,11 +24,11 @@ std::vector<float>  Solution::InitWaterAvailability(const Scenario& scenario) {
  * @param s copy of input scenario
  */
 Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)), score(0),
-        greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::map<int,float>>()) {
+            duration(0), greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::map<int,float>>()) {
     landAtT = std::vector<float>(instance.nbWeeks,  (float)instance.amountLands);
     waterConsumption = std::vector<float>(instance.nbWeeks,  0);
     waterAtT = InitWaterAvailability(scenario);
-    start = std::chrono::steady_clock::now();
+    startPoint = std::chrono::steady_clock::now();
 }
 /**
  * Default constructor init score and greenhouseGas to 0
@@ -37,37 +37,35 @@ Solution::Solution():score(0), greenhouseGasEmission(0), duration(0){}
 
 void Solution::end() {
     auto end = std::chrono::steady_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - startPoint).count();
 }
 
 
 
 /**
  * Display all solution data in stream output operator
- * (Needs to be called in stream output operator methode)
  * @param os output address
- * @param solution input solution object
  */
-void CompleteDisplay(std::ostream* os, const Solution &solution){
-    *os << " Instance: "    << solution.instance <<std::endl;
-    *os << " Scenario: "    << solution.scenario <<std::endl;
+void Solution::CompleteDisplay(std::ostream* os){
+    *os << " Instance: "    << instance <<std::endl;
+    *os << " Scenario: "    << scenario <<std::endl;
 
     *os << "land at T: " <<std::endl;
     int i=0;
-    for(auto iterOnLand = solution.landAtT.begin(); iterOnLand < solution.landAtT.end(); iterOnLand++){
+    for(auto iterOnLand = landAtT.begin(); iterOnLand < landAtT.end(); iterOnLand++){
         *os << i << " :" << *iterOnLand << "| ";
         i++;
 
     }
     i=0;
     *os <<std::endl<< " water at T: " <<std::endl;
-    for(auto iterOnWater = solution.waterAtT.begin(); iterOnWater < solution.waterAtT.end(); ++iterOnWater){
+    for(auto iterOnWater = waterAtT.begin(); iterOnWater < waterAtT.end(); ++iterOnWater){
         *os << i << " :" << *iterOnWater << "| ";
         i++;
     }
     i=0;
     *os <<std::endl<< " water consumption: " <<std::endl;
-    for(auto iterOnWater = solution.waterConsumption.begin(); iterOnWater < solution.waterConsumption.end(); ++iterOnWater){
+    for(auto iterOnWater = waterConsumption.begin(); iterOnWater < waterConsumption.end(); ++iterOnWater){
         *os << i << " :" << *iterOnWater << "| ";
         i++;
     }
@@ -83,8 +81,8 @@ void ShowDecision(std::ostream* os, const Solution &solution){
     for (mapIterator = solution.affectedQuantity.begin(); mapIterator != solution.affectedQuantity.end(); mapIterator++){
         *os << "  *  Culture :"<<mapIterator->first.id<<"("<<mapIterator->first.nom<<")"<<std::endl;
         *os <<"\t";
-        for(auto subMapIterator=mapIterator->second.begin(); subMapIterator != mapIterator->second.end(); subMapIterator++){
-            *os << "(" << subMapIterator->first << " : " << subMapIterator->second << ")  ";
+        for(auto subMapIterator : mapIterator->second){
+            *os << "(" << subMapIterator.first << " : " << subMapIterator.second << ")  ";
         }
         *os<<std::endl;
     }
@@ -164,7 +162,7 @@ void Solution::AllocateCrop(const Culture& crop, float quantity, int start, bool
 
 }
 /**
- * Throw a ConstaintViolationException if the Greenhouse gas emission threshold is exceeded
+ * Throw a ConstraintViolationException if the Greenhouse gas emission threshold is exceeded
  */
 void Solution::VerifyGGE() const{
     if(greenhouseGasEmission>instance.maxGreenhouseGases)
@@ -180,7 +178,7 @@ void Solution::VerifyGGE() const{
 void AccumulateConsumption(std::vector<float>& consumption, int start,int duration, float quantity){
     int week;
     for(week = start;week<start+duration;week++){
-        consumption[week]+= (week-start+1)*quantity;
+        consumption[week]+= float(week-start+1)*quantity;
     }
 }
 /**
@@ -197,12 +195,12 @@ std::vector<float> CreateWaterConsumptionList(const Solution& sol){
     auto cons = std::vector<float>(sol.instance.nbWeeks,0);
     auto decisionMap = sol.affectedQuantity;
 
-    for(auto iterCultureMap =decisionMap.begin(); iterCultureMap != decisionMap.end(); iterCultureMap++){
-        plantationDates = iterCultureMap->second;
-        duration = iterCultureMap->first.duree_pousse;
-        needs = iterCultureMap->first.besoin_eau;
-        for(auto iterDateMap = plantationDates.begin(); iterDateMap != plantationDates.end(); iterDateMap++){
-            AccumulateConsumption(cons, iterDateMap->first, duration,  needs);
+    for(auto & iterCultureMap : decisionMap){
+        plantationDates = iterCultureMap.second;
+        duration = iterCultureMap.first.duree_pousse;
+        needs = iterCultureMap.first.besoin_eau;
+        for(auto & plantationDate : plantationDates){
+            AccumulateConsumption(cons, plantationDate.first, duration,  needs);
         }
     }
 
@@ -215,13 +213,13 @@ std::vector<float> CreateWaterConsumptionList(const Solution& sol){
  */
 void Solution::VerifyWaterConsumption(){
     auto availability = std::vector<std::vector<float>>(); //water availability for each scenario
-    int iterOnScenario = 0;
-    int week = 0;
+    int iterOnScenario;
+    int week ;
     std::vector<float> water;
     auto cons = CreateWaterConsumptionList(*this);
 
     //Init availability list
-    for(Scenario s: instance.scenarios){
+    for(const Scenario& s: instance.scenarios){
         availability.push_back(InitWaterAvailability(s));
     }
     for(iterOnScenario = 0;iterOnScenario<availability.size();iterOnScenario++){
@@ -259,7 +257,7 @@ void Solution::Verify(bool throwException=false){
 
         if(!throwException)
             std::cout<<"Feasible Solution"<<std::endl;
-    }catch (ConstraintViolationException cve){
+    }catch (ConstraintViolationException& cve){
         if(throwException)
             throw cve;
         else
