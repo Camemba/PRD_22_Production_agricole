@@ -21,10 +21,10 @@ public:
     std::vector<float> landAtT; // land availability at t
     std::vector<float> waterAtT; // water availability at t
     std::vector<float> waterConsumption;
-    float score ;
-    float greenhouseGasEmission;
+    float score{} ;
+    float greenhouseGasEmission{};
     std::chrono::steady_clock::time_point startPoint;
-    float duration;
+    float duration{};
 
 
     /*
@@ -34,11 +34,11 @@ public:
     std::map<Culture,std::map<int,float>> affectedQuantity;
 
 public:
-     Solution();
+     Solution()= default;
+     Solution(Solution& sol);
      Solution(Instance i, Scenario s);
 
      void end();
-
      void AllocateCrop(const Culture& crop, float quantity, int start, bool displayChoice=false);
      friend std::ostream &operator<<(std::ostream &os, const Solution &solution);
      void Verify(bool throwException);

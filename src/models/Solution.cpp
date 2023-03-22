@@ -23,18 +23,29 @@ std::vector<float>  Solution::InitWaterAvailability(const Scenario& scenario) {
  * @param i copy of input instance
  * @param s copy of input scenario
  */
-Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)), score(0),
-            duration(0), greenhouseGasEmission(0), affectedQuantity(std::map<Culture,std::map<int,float>>()) {
+Solution::Solution(Instance i, Scenario s): instance(std::move(i)),scenario(std::move(s)),
+                                            score(0), duration(0), greenhouseGasEmission(0),
+                                            affectedQuantity(std::map<Culture,std::map<int,float>>()) {
     landAtT = std::vector<float>(instance.nbWeeks,  (float)instance.amountLands);
     waterConsumption = std::vector<float>(instance.nbWeeks,  0);
     waterAtT = InitWaterAvailability(scenario);
     startPoint = std::chrono::steady_clock::now();
 }
 /**
- * Default constructor init score and greenhouseGas to 0
+ * Build a solution with same instance, scenario and startpoint
+ * @param sol
  */
-Solution::Solution():score(0), greenhouseGasEmission(0), duration(0){}
+Solution::Solution(Solution &sol): instance(sol.instance),scenario(sol.scenario),greenhouseGasEmission(0), score(0),
+                                   duration(0), affectedQuantity(std::map<Culture,std::map<int,float>>()) {
+    landAtT = std::vector<float>(instance.nbWeeks,  (float)instance.amountLands);
+    waterConsumption = std::vector<float>(instance.nbWeeks,  0);
+    waterAtT = InitWaterAvailability(scenario);
+    startPoint = sol.startPoint;
 
+}
+/**
+ * Actualize solution duration depend on the calling time and the start point
+ */
 void Solution::end() {
     auto end = std::chrono::steady_clock::now();
     duration = (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - startPoint).count();
@@ -264,3 +275,5 @@ void Solution::Verify(bool throwException=false){
             std::cout<<"Non-Feasible Solution : "<<cve.what()<<std::endl;
     }
 }
+
+
