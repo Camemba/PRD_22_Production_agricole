@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+typedef char ;
 enum class Constraint {GGE,Water,Land};
 
 class ConstraintViolationException : public std::exception{
@@ -20,7 +21,8 @@ public:
     ConstraintViolationException(Constraint constraint) : constraint(constraint) {}
     ConstraintViolationException(Constraint constraint, int scenario, int week);
     Constraint type(){return constraint;};
-    char * what () ;
+     std::string  what () ;
 };
+
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_CONSTRAINTVIOLATIONEXCEPTION_H
