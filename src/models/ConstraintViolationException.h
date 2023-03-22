@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-typedef char ;
 enum class Constraint {GGE,Water,Land};
 
 class ConstraintViolationException : public std::exception{
