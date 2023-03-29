@@ -3,7 +3,6 @@
 //
 
 #include "Solver.h"
-
 #include <utility>
 
 Solver::Solver(Instance i): instance(std::move(i)), worstScenario(Scenario()){
@@ -154,7 +153,7 @@ std::pair<int,float> Solver::FindBestConfig(const Solution &solution, const Cult
         upperBoundWater = 9999999;
         upperBoundLand = 999999;
         for (int t = 0; t<growthDuration; t++){
-            tempMinWater = *(iterOnWater + week +t)/((t+1)*waterNeeds);
+            tempMinWater = *(iterOnWater + week +t)/((float)(t+1)*waterNeeds);
             tempMinLand = *(iterOnLand + week + t)/ landNeeds;
             if(0 < tempMinWater < upperBoundWater)
                 upperBoundWater = tempMinWater;
@@ -192,7 +191,6 @@ std::pair<int,float> Solver::FindBestConfig(const Solution &solution, const Cult
  */
 Solution Solver::Heuristique1() {
     MinCumulScenario();
-    Solution result;
     std::vector<Culture>crops;
     std::map<Culture,bool>chosenCrops;
     Culture crop;
@@ -211,16 +209,16 @@ Solution Solver::Heuristique1() {
     float maxRewardPossible;
     std::pair<int,float> cropConfig;
 
-    result = Solution(instance, worstScenario);
+    Solution result = Solution(instance, worstScenario);
     bestReward = -1;
     // init crop list
 
 
     while(bestReward != 0 ){
         bestReward = 0;
-        for(auto iterOnCrop = instance.crops.begin(); iterOnCrop != instance.crops.end(); iterOnCrop++){
+        for(const auto & iterOnCrop : instance.crops){
 
-            crop = *iterOnCrop;
+            crop = iterOnCrop;
             cropConfig = FindBestConfig(result, crop);
             start = cropConfig.first;
             maxQuantityPossible = cropConfig.second;
@@ -228,7 +226,7 @@ Solution Solver::Heuristique1() {
 
             //memorize the best crop
             if(maxRewardPossible > bestReward && chosenCrops[crop]!=1){
-                bestCrop = *iterOnCrop;
+                bestCrop = iterOnCrop;
                 bestReward = maxRewardPossible;
                 bestQuantity = maxQuantityPossible;
                 bestStart = start;
@@ -240,7 +238,7 @@ Solution Solver::Heuristique1() {
         //apply the best crop
         if (bestReward != 0){
             result.AllocateCrop(bestCrop, bestQuantity, bestStart);
-            chosenCrops[bestCrop]=1;
+            chosenCrops[bestCrop]=true;
             bestReward = -1;
             bestQuantity = 0;
             bestStart = 0;
@@ -251,42 +249,59 @@ Solution Solver::Heuristique1() {
     return result;
 }
 /**
- * Solve the knapsack problem where crops are the items, emissions are w and emission threshold is the W
- * It's a real quantity of each object
+ * Solve the real quantity knapsack problem
  * @param solution
+ * @param emission decide if W,wi are crop emission or land needs
  */
 void Solver::SolveKnapsack(Solution& solution){
     auto items =std::vector<std::pair<float, const Culture *>>() ; //list (weight/reward, item)
-    auto decisionMap = solution.affectedQuantity;
-    Solution newSolution = Solution(solution.instance,solution.scenario);
+    auto decisionMap = solution.affectedQuantity;//decision of the solution in parameter
+    Solution newSolution = Solution(solution);
+    //knapsack problem variables
+    float W,wi,ri;
 
-    float W = solution.instance.maxGreenhouseGases;
-    int itemIndex;
-    int size;
+    //new decision variable
     float quantity;
     int date;
-
-
     const Culture* crop;
+
+    //crop list variable
+    int itemIndex;
+    int size;
+
+
     //data initialisation
-    for(auto iterCultureMap =decisionMap.begin(); iterCultureMap != decisionMap.end(); iterCultureMap++){
-        crop = &(iterCultureMap->first);
-        items.push_back(std::make_pair(crop->emission/crop->rendement,crop));
+    W = solution.instance.maxGreenhouseGases;
+
+    for(auto & iterCultureMap : decisionMap){
+        crop = &(iterCultureMap.first);
+        wi = crop->emission;
+        ri = crop->rendement;
+        items.emplace_back(wi/ri,crop);
     }
     //the smaller the first value is, the better the item is.
     std::sort(items.begin(), items.end());
     itemIndex = 0;
-    size = items.size();
+    size = (int)items.size();
     while( W>0 || itemIndex<size){
         crop = items[itemIndex].second;
-        quantity = W/crop->emission;
+        wi = crop->emission;
+        quantity = W/wi;
         date = decisionMap[*crop].begin()->first; // use the first plantation date of a crop
         newSolution.AllocateCrop(*crop,quantity,date);
     }
     solution = newSolution;
     
 }
+void Solver::SolveLandProblem(Solution& solution, int conflictWeek){
+    auto items =std::vector<std::pair<int, const Culture *>>() ; //list (date, item)
+    auto decisionMap = solution.affectedQuantity;//decision of the solution in parameter
+    Solution newSolution = Solution(solution);
 
+    for(auto & iterCultureMap : decisionMap){
+        
+    }
+}
 
 
 /**
@@ -296,18 +311,22 @@ void Solver::SolveKnapsack(Solution& solution){
 void Solver::Repair(Solution& solution){
     try{
         solution.Verify(true);
-    }catch (ConstraintViolationException cve){
+    }catch (ConstraintViolationException& cve){
         Constraint type = cve.type();
 
         switch (type) {
             case Constraint::GGE:
-                //knapsack problem
+                //knapsack problem where emission are weights
                 SolveKnapsack(solution);
                 break;
             case Constraint::Water:
                 break;
+            case Constraint::Land:
+
+                break;
             default:
                 std::cout<<"Exception type not recognize in repair function : "<<cve.what()<<std::endl;
         }
+        Repair(solution);//Recall the function to verify if solution is
     }
 }

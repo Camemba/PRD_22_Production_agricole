@@ -21,9 +21,11 @@ private:
 
     void MinCumulScenario();
 
-    void Repair(Solution &solution);
+    static void Repair(Solution &solution);
+    static void SolveKnapsack(Solution &solution);
 
-    void SolveKnapsack(Solution &solution);
+
+    void SolveLandProblem(Solution &solution, int conflictWeek);
 };
 
 #endif //PRD_22_PRODUCTION_AGRICOLE_SOLVER_H
