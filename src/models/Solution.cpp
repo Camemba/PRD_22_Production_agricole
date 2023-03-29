@@ -227,6 +227,13 @@ void Solution::VerifyWaterConsumption(){
     int iterOnScenario;
     int week ;
     std::vector<float> water;
+
+    /*
+     * CONCEPTUAL ERROR : La consommation ici est faite de maniere globale et prend en compte toute les cultures
+     * Elle devrait plutot etre propre a chaque culture et verfier pour chacune separement
+     * car de la meme maniere que la quantite n'influe pas la capacite a faire une culture, les cultures
+     * precedemment choisie n'influe pas sur notre capacite ou non a en faire une autre
+     */
     auto cons = CreateWaterConsumptionList(*this);
 
     //Init availability list
